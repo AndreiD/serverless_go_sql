@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	function "github.com/AndreiD/serverless_go_sql"
 	"log"
 	"net/http"
-	function "github.com/AndreiD/serverless_go_sql"
 )
 
 func main() {

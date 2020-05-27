@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/AndreiD/serverless_go_sql/serverless"
+	function "github.com/AndreiD/serverless_go_sql"
 )
 
 func main() {
-	http.HandleFunc("/", serverless.Register)
-	fmt.Println("Listening on localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/", function.TheFunction)
+	fmt.Println("Listening on http://localhost:3000/")
+	log.Fatal(http.ListenAndServe(":3000", nil))
 }

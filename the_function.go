@@ -2,93 +2,65 @@ package function
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
+	"github.com/bxcodec/faker/v3"
+	_ "github.com/go-sql-driver/mysql" // needed by sqlx
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"log"
 	"net/http"
-	"time"
-	"context"
-	"database/sql"
-	"fmt"
 	"os"
-	uuid "github.com/google/uuid"
-	// Import the MySQL SQL driver.
-	_ "github.com/go-sql-driver/mysql"
-
 )
 
-var (
-	db *sql.DB
+// DB is the database reference.
+var DB *sqlx.DB
 
-	connectionName = os.Getenv("DB_HOST")
-	dbUser         = os.Getenv("DB_USER")
-	dbPassword     = os.Getenv("DB_PASS")
-	dbName         = os.Getenv("DB_DATABASE")
-	dsn            = fmt.Sprintf("%s:%s@unix(/cloudsql/%s)/%s", dbUser, dbPassword, connectionName, dbName)
+var (
+	dbHost        = os.Getenv("DB_HOST")
+	dbUser        = os.Getenv("DB_USER")
+	dbPassword    = os.Getenv("DB_PASS")
+	dbName        = os.Getenv("DB_DATABASE")
+	connectionURI = fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", dbUser, dbPassword, dbHost, dbName)
 )
 
 func init() {
 	var err error
-	db, err = sql.Open("mysql", dsn)
+	DB, err = sqlx.Open("mysql", connectionURI)
 	if err != nil {
-		log.Fatalf("could not open db: %v", err)
+		log.Fatal(err)
 	}
-	err = db.Ping()
+
+	err = DB.Ping()
 	if err != nil {
-		log.Fatalf("could not ping db: %v", err)
+		log.Fatal(err)
 	}
+	log.Println("connection to the database OK")
 	// Only allow 1 connection to the database to avoid overloading it.
-	db.SetMaxIdleConns(1)
-	db.SetMaxOpenConns(1)
+	DB.SetMaxIdleConns(1)
+	DB.SetMaxOpenConns(1)
 }
 
-
-// TheFunction ...
+// TheFunction is our main function.
 func TheFunction(w http.ResponseWriter, r *http.Request) {
-	randomUserClient := http.Client{
-		Timeout: time.Second * 3,
+	// Generate some fake data...
+	// SomeStruct ...
+	type SomeStruct struct {
+		Email     string `faker:"email"`
+		FirstName string `faker:"first_name"`
+		LastName  string `faker:"last_name"`
 	}
 
-	req, err := http.NewRequest(http.MethodGet, "https://randomuser.me/api/", nil)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	res, err := randomUserClient.Do(req)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	body, err := ioutil.ReadAll(res.Body)
+	a := SomeStruct{}
+	err := faker.FakeData(&a)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var o map[string]interface{}
-	err = json.Unmarshal(body, &o)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	results := o["results"].([]interface{})
-	result := results[0].(map[string]interface{})
-
-	result["generator"] = "google-cloud-function"
-
-	stmt, err := db.Prepare("INSERT INTO users(id, name, email) VALUES (?,?,?)")
-	if err != nil {
-		log.Printf("db.Query: %v", err)
-		return
-	}
-	_, err = stmt.Exec(uuid.New().String(), "Jimmy", "jim@me.com")
-	if err != nil {
-		log.Printf("db.Query: %v", err)
-		return
-	}
-
+	query := "INSERT INTO users(id, name, email) VALUES (?,?,?)"
+	newID := uuid.New().String()
+	DB.MustExec(query, newID, a.FirstName+" "+a.LastName, a.Email)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{"status": "created", "id": newID})
 }

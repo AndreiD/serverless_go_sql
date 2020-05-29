@@ -1,6 +1,8 @@
 package function
 
 import (
+	"github.com/buger/jsonparser"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,5 +27,21 @@ func TestStuff(t *testing.T) {
 	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusCreated)
+	}
+
+	body, err := ioutil.ReadAll(rr.Body)
+	if err != nil {
+		t.Error(err)
+	}
+
+	userID, _, _, err := jsonparser.Get(body, "id")
+	if err != nil {
+		t.Error(err)
+	}
+
+	// cleanup the user
+	err = deleteUserByID(string(userID))
+	if err != nil {
+		t.Error(err)
 	}
 }

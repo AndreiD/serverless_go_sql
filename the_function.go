@@ -1,7 +1,6 @@
 package function
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/bxcodec/faker/v3"
 	_ "github.com/go-sql-driver/mysql" // needed by sqlx
@@ -42,6 +41,28 @@ func init() {
 
 // TheFunction is our main function.
 func TheFunction(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		getUser(r, w)
+	case http.MethodPost:
+		createUser(r, w)
+	case http.MethodPut:
+		updateUser(r, w)
+	case http.MethodDelete:
+		deleteUser(r, w)
+	default:
+		respond(http.StatusBadRequest, map[string]interface{}{"error": "unsupported http verb"}, w)
+	}
+}
+
+// getUser a user
+func getUser(r *http.Request, w http.ResponseWriter) {
+	respond(http.StatusOK, map[string]interface{}{"get user...": "info..."}, w)
+}
+
+// createUser a user
+func createUser(r *http.Request, w http.ResponseWriter) {
+
 	// Generate some fake data...
 	// SomeStruct ...
 	type SomeStruct struct {
@@ -60,7 +81,22 @@ func TheFunction(w http.ResponseWriter, r *http.Request) {
 	newID := uuid.New().String()
 	DB.MustExec(query, newID, a.FirstName+" "+a.LastName, a.Email)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{"status": "created", "id": newID})
+	respond(http.StatusCreated, map[string]interface{}{"status": "created", "id": newID}, w)
+}
+
+// updateUser a user
+func updateUser(r *http.Request, w http.ResponseWriter) {
+	respond(http.StatusOK, map[string]interface{}{"update...": "info..."}, w)
+}
+
+// deleteUser a user
+func deleteUser(r *http.Request, w http.ResponseWriter) {
+	respond(http.StatusOK, map[string]interface{}{"deleted...": "info..."}, w)
+}
+
+// deleteUserByID delete a user by id
+func deleteUserByID(userID string) error {
+	query := "DELETE FROM users WHERE id = ? LIMIT 1"
+	DB.MustExec(query, userID)
+	return nil
 }

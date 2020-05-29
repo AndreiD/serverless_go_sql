@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-golangci-lint run --no-config --issues-exit-code=1 --enable-all --disable=gocyclo --disable=gochecknoinits --disable=nakedret --disable=gochecknoglobals --tests=false --disable=goimports --disable=wsl \
+golangci-lint run --no-config --issues-exit-code=1 --enable-all --disable=godot --disable=gocyclo --disable=gochecknoinits --disable=nakedret --disable=gochecknoglobals --tests=false --disable=goimports --disable=wsl \
  --skip-dirs "(^|/)templates($|/)"
 
 

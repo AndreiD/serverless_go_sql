@@ -138,7 +138,7 @@ func updateUser(r *http.Request, w http.ResponseWriter) {
 	_, err = DB.NamedExec(`UPDATE users SET name=:name WHERE id = :id`,
 		map[string]interface{}{
 			"id":   payload.ID,
-			"name": "Jon Snow",
+			"name": payload.Name,
 		})
 	if err != nil {
 		respond(http.StatusBadRequest, map[string]interface{}{"error": err.Error()}, w)

@@ -62,7 +62,7 @@ func getUser(r *http.Request, w http.ResponseWriter) {
 
 // createUser a user
 func createUser(r *http.Request, w http.ResponseWriter) {
-
+	r.RequestURI
 	// Generate some fake data...
 	// SomeStruct ...
 	type SomeStruct struct {

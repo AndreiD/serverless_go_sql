@@ -44,7 +44,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("connection to the database OK")
+	log.Println("initialized OK! connection to the database OK!")
 	// Only allow 1 connection to the database to avoid overloading it.
 	DB.SetMaxIdleConns(1)
 	DB.SetMaxOpenConns(1)
@@ -97,7 +97,7 @@ func createUser(r *http.Request, w http.ResponseWriter) {
 	//	panic(err)
 	//}
 	//log.Println(t.Test)
-	log.Printf("got a new request from ip %s", r.RemoteAddr)
+	log.Printf("got a new request with user agent %s", r.UserAgent())
 
 	a := SomeStruct{}
 	err := faker.FakeData(&a)
@@ -106,8 +106,7 @@ func createUser(r *http.Request, w http.ResponseWriter) {
 	}
 
 	newID := uuid.New().String()
-	_, err = DB.NamedExec(`INSERT INTO users (id, name, email)
-	     VALUES (:id, :name, :email)`,
+	_, err = DB.NamedExec(`INSERT INTO users (id, name, email) VALUES (:id, :name, :email)`,
 		map[string]interface{}{
 			"id":    newID,
 			"name":  a.Name,

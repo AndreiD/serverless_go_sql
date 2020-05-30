@@ -2,6 +2,8 @@ name: Master
 
 on:
   push:
+    paths-ignore:
+      - 'docs/**'
     branches: [ master ]
 
 jobs:
@@ -41,4 +43,4 @@ jobs:
                 version: '290.0.1'
                 project_id: ${{ secrets.PROJECT_ID }}
                 service_account_key: ${{ secrets.SERVICE_ACCOUNT}}
-          run: sh ./deploy.sh
+        run: sh ./deploy.sh

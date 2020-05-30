@@ -37,10 +37,9 @@ jobs:
         run: go test -v ./...
 
       - name: Deploy
-          uses: actions/checkout@v2
-            - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-              with:
-                version: '290.0.1'
-                project_id: ${{ secrets.PROJECT_ID }}
-                service_account_key: ${{ secrets.SERVICE_ACCOUNT}}
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+           version: '290.0.1'
+           project_id: ${{ secrets.PROJECT_ID }}
+           service_account_key: ${{ secrets.SERVICE_ACCOUNT}}
         run: sh ./deploy.sh

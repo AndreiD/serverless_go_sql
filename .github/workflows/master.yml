@@ -42,4 +42,6 @@ jobs:
            version: '290.0.1'
            project_id: ${{ secrets.PROJECT_ID }}
            service_account_key: ${{ secrets.SERVICE_ACCOUNT}}
+
+      - name: Deploy2
         run: sh ./deploy.sh

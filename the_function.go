@@ -44,9 +44,8 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("initialized OK! connection to the database OK!")
-	// Only allow 1 connection to the database to avoid overloading it.
-	DB.SetMaxIdleConns(1)
+	log.Println("initialized ok! connection to the database ok!")
+	DB.SetMaxIdleConns(1) // Only allow 1 connection to the database to avoid overloading it.
 	DB.SetMaxOpenConns(1)
 }
 
@@ -94,7 +93,7 @@ func createUser(r *http.Request, w http.ResponseWriter) {
 	//var t test_struct
 	//err := decoder.Decode(&t)
 	//if err != nil {
-	//	panic(err)
+	//	log.Fatal(err)
 	//}
 	//log.Println(t.Test)
 	log.Printf("got a new request with user agent %s", r.UserAgent())
